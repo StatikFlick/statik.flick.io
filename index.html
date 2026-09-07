@@ -69,7 +69,7 @@ section{padding:18px 0;opacity:1;transform:none;transition:opacity .8s cubic-bez
 .links-grid{display:flex;flex-direction:column;gap:8px}.link-card{padding:13px 15px;display:flex;align-items:center;justify-content:space-between;text-decoration:none;color:inherit}
 .link-title{font-size:12px;font-weight:500}
 
-/* Float Music Trigger & Visualizer */
+/* Float Music Trigger & Visualizer Button */
 .float-player{
   position:fixed;right:16px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:60;width:52px;height:52px;
   border:1px solid var(--line2);border-radius:50%;background:rgba(18,18,20,.85);
@@ -79,15 +79,17 @@ section{padding:18px 0;opacity:1;transform:none;transition:opacity .8s cubic-bez
 }
 .float-player:hover{transform:scale(1.06);border-color:var(--gold)}
 .float-icon{width:100%;height:100%;display:grid;place-items:center;position:relative}
-.float-icon svg{width:20px;height:20px;fill:currentColor}
 
-/* Real-time audio visualizer inside float button (right side corner) */
-.audio-visualizer-mini {
-  position: absolute; right: 7px; top: 50%; transform: translateY(-50%);
-  display: flex; align-items: flex-end; gap: 2px; height: 16px; pointer-events: none;
+.float-play-icon {width: 20px; height: 20px; fill: currentColor; display: block;}
+.float-player.playing .float-play-icon {display: none;}
+
+.audio-visualizer-bars {
+  position: absolute; display: none; align-items: center; justify-content: center; gap: 2.5px; height: 100%; width: 100%; pointer-events: none;
 }
-.audio-visualizer-mini span {
-  width: 2.5px; background: var(--gold); border-radius: 1px; height: 4px; transition: height 0.05s ease;
+.float-player.playing .audio-visualizer-bars {display: flex;}
+.audio-visualizer-bars span {
+  width: 3px; background: var(--gold); border-radius: 2px; height: 4px; 
+  transform-origin: bottom; transition: height 0.05s ease;
 }
 
 .modal-overlay{position:fixed;inset:0;z-index:100;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
@@ -96,31 +98,39 @@ section{padding:18px 0;opacity:1;transform:none;transition:opacity .8s cubic-bez
 .player-modal{
   position:relative;isolation:isolate;
   width:100%;max-width:560px;height:58svh;max-height:min(94svh,900px);min-height:28svh;
-  overflow:hidden;padding:24px 16px calc(20px + env(safe-area-inset-bottom));
+  overflow:hidden;padding:28px 16px calc(20px + env(safe-area-inset-bottom));
   border-radius:24px 24px 0 0;border-bottom:0;transform:translateY(100%);
-  transition:transform .42s cubic-bezier(.16,1,.3,1);
+  transition:transform .42s cubic-bezier(.16,1,.3,1), height .2s ease;
   box-shadow:0 -20px 80px rgba(0,0,0,.45);
   display:flex;flex-direction:column;
+  touch-action: none;
 }
 .modal-overlay.open .player-modal{transform:none}
 
-/* Modal Drag Bar (Handle) */
+/* Improved Drag Bar / Resize Handle */
+.modal-drag-bar-area {
+  position: absolute; top: 0; left: 0; right: 0; height: 26px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: ns-resize; z-index: 105;
+}
 .modal-drag-bar {
-  width: 36px; height: 4px; background: rgba(255,255,255,.2); border-radius: 2px;
-  position: absolute; top: 8px; left: 50%; transform: translateX(-50%); cursor: grab;
+  width: 36px; height: 4px; background: rgba(255,255,255,.25); border-radius: 2px;
+  transition: background .2s;
 }
+.modal-drag-bar-area:hover .modal-drag-bar { background: var(--gold); }
 
-.modal-scroll{min-height:0;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;flex:1;scrollbar-width:thin;padding-top:10px}
+.modal-scroll{min-height:0;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;flex:1;scrollbar-width:thin;padding-top:4px}
 
-/* Non-overlapping close button */
+/* Fixed Close Button Layout */
 .modal-close{
-  position:absolute;top:14px;right:16px;z-index:99;width:28px;height:28px;
-  border:1px solid var(--line);border-radius:50%;background:rgba(255,255,255,.04);
+  position:absolute;top:12px;right:16px;z-index:110;width:28px;height:28px;
+  border:1px solid var(--line);border-radius:50%;background:rgba(255,255,255,.06);
   color:var(--faint);cursor:pointer;display:grid;place-items:center;font-size:12px;
+  transition:all .2s;
 }
-.modal-close:hover{color:var(--text);border-color:var(--line2)}
+.modal-close:hover{color:var(--text);border-color:var(--line2);background:rgba(255,255,255,.12)}
 
-.player-tabs{display:flex;gap:6px;margin-bottom:12px}.tab-btn{flex:1;padding:8px;border:1px solid var(--line);border-radius:11px;background:transparent;color:var(--faint);font:9px 'JetBrains Mono',monospace;letter-spacing:.5px;cursor:pointer}
+.player-tabs{display:flex;gap:6px;margin-bottom:12px;padding-right:32px}.tab-btn{flex:1;padding:8px;border:1px solid var(--line);border-radius:11px;background:transparent;color:var(--faint);font:9px 'JetBrains Mono',monospace;letter-spacing:.5px;cursor:pointer}
 .tab-btn.active{color:var(--gold);border-color:var(--gold2);background:rgba(255,255,255,.11)}
 .spotify-tab{display:none}.spotify-tab.active{display:block}
 
@@ -156,7 +166,7 @@ section{padding:18px 0;opacity:1;transform:none;transition:opacity .8s cubic-bez
 
 footer{text-align:center;padding-top:20px;color:var(--faint);font:8px 'JetBrains Mono',monospace;letter-spacing:1px}
 
-/* Top-Left Performance & Theme Badge */
+/* Top-Left Performance & Quality Badge */
 .perf-badge{
   position:fixed;top:10px;left:10px;z-index:120;
   padding:6px 10px;border:1px solid rgba(255,255,255,.12);
@@ -171,7 +181,7 @@ footer{text-align:center;padding-top:20px;color:var(--faint);font:8px 'JetBrains
 .perf-badge b{color:var(--gold)}
 
 .quality-panel{
-  position:fixed;top:48px;left:10px;width:min(280px,calc(100vw - 20px));
+  position:fixed;top:48px;left:10px;width:min(300px,calc(100vw - 20px));
   z-index:125;padding:14px;border:1px solid rgba(255,255,255,.12);
   border-radius:14px;background:rgba(13,13,13,.95);
   backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
@@ -205,19 +215,22 @@ footer{text-align:center;padding-top:20px;color:var(--faint);font:8px 'JetBrains
 <canvas id="particles"></canvas>
 <div class="grain"></div><div class="vignette"></div><div class="cursor-glow" id="cursorGlow"></div>
 
-<!-- Top-Left Badge (Theme & Options) -->
+<!-- Top-Left Performance, Refresh Rate & HD-8K Quality Badge -->
 <button class="perf-badge press-effect" id="perfBadge" type="button">
-  <b id="perfFps">60 FPS</b> <span id="perfThemeName">• OLED Dark</span>
+  <b id="perfFps">Auto 60Hz</b> <span id="perfThemeName">• 4K Resolution</span>
 </button>
 
 <div class="quality-panel" id="qualityPanel">
   <div class="quality-head">
-    <div class="quality-title">Theme & Options</div>
+    <div class="quality-title">Refresh Rate & Resolution</div>
     <button class="quality-close" id="qualityClose" type="button">✕</button>
   </div>
   <div class="quality-grid">
-    <button class="quality-option active press-effect" data-theme="oled" type="button">OLED Dark Mode (Active)</button>
-    <button class="quality-option press-effect" data-theme="light" type="button">Light Theme</button>
+    <button class="quality-option press-effect" data-mode="auto" type="button">⚡ Auto-Detect (Smart Profile)</button>
+    <button class="quality-option press-effect" data-refresh="60" data-res="HD" type="button">60 Hz • HD Quality</button>
+    <button class="quality-option press-effect" data-refresh="90" data-res="FHD" type="button">90 Hz • Full HD+</button>
+    <button class="quality-option press-effect" data-refresh="120" data-res="4K" type="button">120 Hz • 4K Ultra</button>
+    <button class="quality-option active press-effect" data-refresh="144" data-res="8K" type="button">🔥 144 Hz • 8K Extreme</button>
   </div>
 </div>
 
@@ -290,19 +303,24 @@ footer{text-align:center;padding-top:20px;color:var(--faint);font:8px 'JetBrains
     </div>
   </section>
 
-  <!-- Float Player Trigger with Right-Corner Real Audio Visualizer -->
+  <!-- Float Player Trigger with Dynamic Visualizer Bars -->
   <button class="float-player press-effect" id="playerTrigger" type="button" aria-label="Open music player">
     <span class="float-icon" id="floatIcon">
-      <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>
-      <div class="audio-visualizer-mini" id="miniVisualizer">
-        <span></span><span></span><span></span>
+      <svg class="float-play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>
+      <div class="audio-visualizer-bars" id="floatVisualizerBars">
+        <span></span><span></span><span></span><span></span><span></span>
       </div>
     </span>
   </button>
 
   <div class="modal-overlay" id="modalOverlay">
-    <div class="glass player-modal" role="dialog" aria-modal="true" aria-label="Music player">
-      <div class="modal-drag-bar" id="modalDragBar"></div>
+    <div class="glass player-modal" id="playerModal" role="dialog" aria-modal="true" aria-label="Music player">
+      <!-- Top Drag Bar for resizing/dragging -->
+      <div class="modal-drag-bar-area" id="modalDragBarArea" title="Drag to resize">
+        <div class="modal-drag-bar" id="modalDragBar"></div>
+      </div>
+      
+      <!-- Close Button safely positioned away from tabs -->
       <button class="modal-close press-effect" id="modalClose" type="button" aria-label="Close">✕</button>
       
       <div class="modal-scroll" id="modalScroll">
@@ -342,21 +360,29 @@ footer{text-align:center;padding-top:20px;color:var(--faint);font:8px 'JetBrains
           </div>
 
           <div class="playlist-stack">
+            <!-- 1st Playlist -->
             <div class="playlist-card">
-              <div class="spotify-embed-container" data-src="https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M"></div>
+              <div class="spotify-embed-container" data-src="https://open.spotify.com/embed/playlist/28Uf8nSzzk1tGlFgGiDB1M"></div>
             </div>
+            <!-- 2nd Playlist -->
             <div class="playlist-card">
-              <div class="spotify-embed-container" data-src="https://open.spotify.com/embed/playlist/37i9dQZF1DWZeKCadgRdKQ"></div>
+              <div class="spotify-embed-container" data-src="https://open.spotify.com/embed/playlist/2YNR549KgybuThIqJTiIvW"></div>
             </div>
-            <!-- Aapka naya bheja hua Spotify playlist link -->
+            <!-- 3rd Playlist -->
             <div class="playlist-card">
               <div class="spotify-embed-container" data-src="https://open.spotify.com/embed/playlist/2LHjM7oUUUP8FkpiSH1Vk3"></div>
             </div>
+            <!-- 4th Playlist -->
             <div class="playlist-card">
-              <div class="spotify-embed-container" data-src="https://open.spotify.com/embed/playlist/37i9dQZF1DXcfGe6MVsSR3"></div>
+              <div class="spotify-embed-container" data-src="https://open.spotify.com/embed/playlist/62tGPmnbGWeKmeNDHsV7jO"></div>
             </div>
+            <!-- 5th Playlist -->
             <div class="playlist-card">
-              <div class="spotify-embed-container" data-src="https://open.spotify.com/embed/playlist/37i9knjP51Oa"></div>
+              <div class="spotify-embed-container" data-src="https://open.spotify.com/embed/playlist/30okxJP5OJht92w56Nwb6I"></div>
+            </div>
+            <!-- 6th Playlist -->
+            <div class="playlist-card">
+              <div class="spotify-embed-container" data-src="https://open.spotify.com/embed/playlist/7JMYQZicAfUYRFt5XLObF3"></div>
             </div>
           </div>
         </div>
@@ -371,7 +397,7 @@ footer{text-align:center;padding-top:20px;color:var(--faint);font:8px 'JetBrains
 </main>
 
 <script>
-/* Audio / Sound FX & Real-Time Analyzer Setup */
+/* Audio Setup */
 const audio = document.getElementById('audio');
 audio.src = 'Isekai(MP3_320K).mp3';
 
@@ -389,23 +415,27 @@ function initAudioAnalyzer() {
   } catch(e) {}
 }
 
-const miniBars = document.querySelectorAll('.audio-visualizer-mini span');
+const floatPlayerBtn = document.getElementById('playerTrigger');
+const visualizerBars = document.querySelectorAll('#floatVisualizerBars span');
+
 function updateVisualizer() {
   requestAnimationFrame(updateVisualizer);
   if (audio.paused || !analyser) {
-    miniBars.forEach(b => b.style.height = '4px');
+    visualizerBars.forEach(b => b.style.height = '4px');
+    floatPlayerBtn.classList.remove('playing');
     return;
   }
+  floatPlayerBtn.classList.add('playing');
   analyser.getByteFrequencyData(dataArray);
-  miniBars.forEach((bar, i) => {
-    const val = dataArray[i * 2] || 10;
-    const h = Math.max(4, (val / 255) * 16);
+  visualizerBars.forEach((bar, i) => {
+    const val = dataArray[i * 3] || 10;
+    const h = Math.max(4, (val / 255) * 22);
     bar.style.height = h + 'px';
   });
 }
 updateVisualizer();
 
-/* Sound Effect on Clicks */
+/* Sound Effect */
 function playChessMoveSound() {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -442,21 +472,51 @@ function scramble() {
 }
 setTimeout(scramble, 650);
 
-/* Enhanced Background Particles (Increased Quantity & Glow) */
+/* Adaptive Refresh Rate & Resolution Engine */
+let selectedRefresh = 144;
+let selectedRes = '8K';
+let isAutoMode = true;
+let isLowEndDevice = false;
+
+function detectDeviceCapabilities() {
+  const cores = navigator.hardwareConcurrency || 4;
+  const memory = navigator.deviceMemory || 4;
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  
+  if (cores <= 4 || memory <= 4 || (isMobile && cores <= 6)) {
+    isLowEndDevice = true;
+    selectedRefresh = 60;
+    selectedRes = 'HD';
+  } else {
+    isLowEndDevice = false;
+    selectedRefresh = 144;
+    selectedRes = '8K';
+  }
+}
+detectDeviceCapabilities();
+
 const canvas = document.getElementById('particles');
 const ctx = canvas.getContext('2d');
 let W = innerWidth, H = innerHeight;
 
 function resizeCanvas() {
   W = innerWidth; H = innerHeight;
-  canvas.width = W * window.devicePixelRatio;
-  canvas.height = H * window.devicePixelRatio;
+  const scale = selectedRes === '8K' ? 2 : (selectedRes === '4K' ? 1.5 : 1);
+  canvas.width = W * window.devicePixelRatio * (scale > 1 ? 1.25 : 1);
+  canvas.height = H * window.devicePixelRatio * (scale > 1 ? 1.25 : 1);
   ctx.setTransform(window.devicePixelRatio, 0, 0, window.devicePixelRatio, 0, 0);
 }
 resizeCanvas();
 addEventListener('resize', resizeCanvas);
 
-const particles = Array.from({ length: 75 }, () => ({
+function getParticleCount() {
+  if (selectedRefresh <= 60) return 30;
+  if (selectedRefresh <= 90) return 50;
+  if (selectedRefresh <= 120) return 75;
+  return 100;
+}
+
+let particles = Array.from({ length: getParticleCount() }, () => ({
   x: Math.random() * W, y: Math.random() * H,
   r: Math.random() * 1.5 + 0.5,
   vy: Math.random() * 0.25 + 0.05,
@@ -464,11 +524,33 @@ const particles = Array.from({ length: 75 }, () => ({
   a: Math.random() * 0.6 + 0.2
 }));
 
-function particleFrame() {
-  ctx.clearRect(0, 0, W, H);
-  const isLight = document.body.classList.contains('light-theme');
-  const particleColor = isLight ? 'rgba(0, 0, 0, ' : 'rgba(255, 255, 255, ';
+function updateParticleArray() {
+  const targetCount = getParticleCount();
+  if (particles.length > targetCount) {
+    particles = particles.slice(0, targetCount);
+  } else {
+    while (particles.length < targetCount) {
+      particles.push({
+        x: Math.random() * W, y: Math.random() * H,
+        r: Math.random() * 1.5 + 0.5,
+        vy: Math.random() * 0.25 + 0.05,
+        vx: (Math.random() - 0.5) * 0.1,
+        a: Math.random() * 0.6 + 0.2
+      });
+    }
+  }
+}
 
+let lastTime = 0;
+function particleFrame(timestamp) {
+  const interval = 1000 / selectedRefresh;
+  if (timestamp - lastTime < interval - 4) {
+    requestAnimationFrame(particleFrame);
+    return;
+  }
+  lastTime = timestamp;
+
+  ctx.clearRect(0, 0, W, H);
   for (const p of particles) {
     p.y -= p.vy;
     p.x += p.vx;
@@ -477,9 +559,11 @@ function particleFrame() {
 
     ctx.beginPath();
     ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-    ctx.fillStyle = particleColor + p.a + ')';
-    ctx.shadowBlur = isLight ? 2 : 8;
-    ctx.shadowColor = isLight ? 'rgba(0,0,0,0.2)' : 'rgba(240,211,154,0.6)';
+    ctx.fillStyle = 'rgba(255, 255, 255, ' + p.a + ')';
+    if (selectedRes === '8K' || selectedRes === '4K') {
+      ctx.shadowBlur = selectedRes === '8K' ? 12 : 8;
+      ctx.shadowColor = 'rgba(240,211,154,0.7)';
+    }
     ctx.fill();
     ctx.shadowBlur = 0;
   }
@@ -490,7 +574,7 @@ requestAnimationFrame(particleFrame);
 /* Cursor Glow */
 const cursorGlow = document.getElementById('cursorGlow');
 addEventListener('pointermove', e => {
-  if (e.pointerType === 'touch') return;
+  if (e.pointerType === 'touch' || selectedRefresh <= 60) return;
   cursorGlow.style.left = e.clientX + 'px';
   cursorGlow.style.top = e.clientY + 'px';
 });
@@ -504,38 +588,39 @@ setInterval(() => {
   setTimeout(() => { ri = (ri + 1) % roles.length; roleEl.textContent = roles[ri]; roleEl.classList.add('show'); }, 430);
 }, 3000);
 
-/* Theme Toggle Support */
+/* Panel Controls */
 const qualityPanel = document.getElementById('qualityPanel');
 document.getElementById('perfBadge').addEventListener('click', () => qualityPanel.classList.toggle('open'));
 document.getElementById('qualityClose').addEventListener('click', () => qualityPanel.classList.remove('open'));
 
-document.querySelectorAll('.quality-option[data-theme]').forEach(btn => {
+document.querySelectorAll('.quality-option').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.quality-option[data-theme]').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.quality-option').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    const theme = btn.dataset.theme;
-    if (theme === 'light') {
-      document.body.classList.add('light-theme');
-      document.documentElement.style.setProperty('--bg', '#f4f4f6');
-      document.documentElement.style.setProperty('--text', '#111112');
-      document.documentElement.style.setProperty('--dim', '#444448');
-      document.documentElement.style.setProperty('--faint', '#66666d');
-      document.documentElement.style.setProperty('--line', 'rgba(0,0,0,.08)');
-      document.documentElement.style.setProperty('--line2', 'rgba(0,0,0,.16)');
-      document.getElementById('perfThemeName').textContent = '• Light Theme';
+
+    if (btn.dataset.mode === 'auto') {
+      isAutoMode = true;
+      detectDeviceCapabilities();
+      document.getElementById('perfFps').textContent = `Auto ${selectedRefresh}Hz`;
+      document.getElementById('perfThemeName').textContent = `• Auto (${selectedRes})`;
     } else {
-      document.body.classList.remove('light-theme');
-      document.documentElement.style.setProperty('--bg', '#09090a');
-      document.documentElement.style.setProperty('--text', '#ffffff');
-      document.documentElement.style.setProperty('--dim', '#c5c2bb');
-      document.documentElement.style.setProperty('--faint', '#8f8b83');
-      document.documentElement.style.setProperty('--line', 'rgba(255,255,255,.085)');
-      document.documentElement.style.setProperty('--line2', 'rgba(255,255,255,.17)');
-      document.getElementById('perfThemeName').textContent = '• OLED Dark';
+      isAutoMode = false;
+      selectedRefresh = parseInt(btn.dataset.refresh);
+      selectedRes = btn.dataset.res;
+      document.getElementById('perfFps').textContent = `${selectedRefresh}Hz`;
+      document.getElementById('perfThemeName').textContent = `• ${selectedRes} Resolution`;
     }
+
+    updateParticleArray();
+    resizeCanvas();
     qualityPanel.classList.remove('open');
   });
 });
+
+if (isAutoMode) {
+  document.getElementById('perfFps').textContent = `Auto ${selectedRefresh}Hz`;
+  document.getElementById('perfThemeName').textContent = `• Auto (${selectedRes})`;
+}
 
 /* Discord Lanyard */
 async function fetchLanyard() {
@@ -569,11 +654,39 @@ document.querySelectorAll('.spotify-embed-container').forEach(container => {
   }
 });
 
-/* Modal Controls & Stack/Unstack toggle */
+/* Modal Controls & Interactive Resize/Drag Handler */
 const overlay = document.getElementById('modalOverlay');
+const playerModal = document.getElementById('playerModal');
+const dragArea = document.getElementById('modalDragBarArea');
+
 document.getElementById('playerTrigger').addEventListener('click', () => overlay.classList.add('open'));
 document.getElementById('modalClose').addEventListener('click', () => overlay.classList.remove('open'));
 overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+
+// Drag / Touch resizing feature to make the panel bigger or smaller via top bar
+let isDragging = false;
+let startY = 0;
+let startHeight = 0;
+
+dragArea.addEventListener('pointerdown', (e) => {
+  isDragging = true;
+  startY = e.clientY;
+  startHeight = playerModal.getBoundingClientRect().height;
+  dragArea.setPointerCapture(e.pointerId);
+  e.preventDefault();
+});
+
+dragArea.addEventListener('pointermove', (e) => {
+  if (!isDragging) return;
+  const deltaY = startY - e.clientY;
+  const newHeight = Math.max(250, Math.min(window.innerHeight * 0.95, startHeight + deltaY));
+  playerModal.style.height = newHeight + 'px';
+});
+
+dragArea.addEventListener('pointerup', (e) => {
+  isDragging = false;
+  try { dragArea.releasePointerCapture(e.pointerId); } catch(err) {}
+});
 
 const spotifyTab = document.getElementById('spotifyTab');
 const expandBtn = document.getElementById('expandSpotify');
